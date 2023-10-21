@@ -1,0 +1,22 @@
+services:
+  service-dev:
+    build:
+      dockerfile: dev.Dockerfile
+    container_name: service-dev
+    ports:
+      - 3000:3000
+    volumes:
+      - ./:/app
+      - /app/node_modules
+    working_dir: /app
+    command: /bin/sh -c "corepack enable && pnpm tsx src/server.ts"
+    stop_grace_period: 1m
+  service-db:
+    image: mongo:7.0.2-jammy
+    container_name: service-db
+    ports:
+      - 27017:27017
+    volumes:
+      - ./mongo-data:/data/db
+    command: mongod --quiet --logpath /dev/null
+    stop_grace_period: 1m
