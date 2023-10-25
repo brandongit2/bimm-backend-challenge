@@ -1,12 +1,12 @@
 services:
   service-dev:
     build:
-      dockerfile: dev.Dockerfile
-    container_name: service-dev
+      dockerfile: ./api/dev.Dockerfile
+    container_name: service-api
     ports:
       - 8443:8443
     volumes:
-      - ./:/app
+      - ./api:/app
       - ${PNPM_STORE_PATH}:/pnpm-store
       - /app/node_modules
     stop_grace_period: 5s
@@ -16,6 +16,8 @@ services:
     ports:
       - 27017:27017
     volumes:
-      - ./mongo-data:/data/db
-    command: mongod --quiet --logpath /dev/null
+      - ./db/mongo-data:/data/db
+      - ./db/db-entry-point.sh:/usr/local/bin/db-entry-point.sh
+    entrypoint: ["db-entry-point.sh"]
+    command: mongod --replSet rs0
     stop_grace_period: 5s

@@ -18,7 +18,7 @@ const envToLogger = {
 }
 
 const __dirname = dirname(fileURLToPath(import.meta.url))
-const fastify = Fastify({
+export const fastify = Fastify({
 	logger: envToLogger[NODE_ENV as keyof typeof envToLogger],
 	http2: true,
 	https: {
@@ -26,11 +26,6 @@ const fastify = Fastify({
 		cert: fs.readFileSync(path.resolve(__dirname, `localhost-cert.pem`)),
 		key: fs.readFileSync(path.resolve(__dirname, `localhost-privkey.pem`)),
 	},
-})
-
-fastify.get(`/`, async (request, reply) => {
-	reply.type(`application/json`).code(200)
-	return {text: `Hello world!`}
 })
 
 fastify.addHook(`onRequest`, (request, reply, done) => {

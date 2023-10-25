@@ -4,11 +4,12 @@ WORKDIR /app
 
 RUN corepack enable
 RUN pnpm config set store-dir /pnpm-store
+RUN apk add --no-cache inotify-tools
 
-COPY package.json pnpm-lock.yaml ./
+COPY ./api/package.json ./api/pnpm-lock.yaml ./
 
 RUN pnpm install
 
 COPY . .
 
-CMD ["sh", "./docker-entry-point.sh"]
+CMD ["sh", "./api-entry-point.sh"]
