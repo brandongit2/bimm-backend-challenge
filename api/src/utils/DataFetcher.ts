@@ -1,7 +1,7 @@
 import pLimit from "p-limit"
 import xml2js from "xml2js"
 
-import {fastify} from "@/server"
+import {fastify} from "@/utils/server"
 
 let globalUserAgentMajor = 1
 

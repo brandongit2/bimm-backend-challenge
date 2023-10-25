@@ -1,0 +1,14 @@
+type VehicleMake {
+	makeId: String!
+	makeName: String!
+	vehicleTypes: [VehicleType!]!
+}
+
+type VehicleType {
+	typeId: String!
+	typeName: String!
+}
+
+type Query {
+	vehicleMakes(makeId: String, makeName: String): [VehicleMake!]!
+}

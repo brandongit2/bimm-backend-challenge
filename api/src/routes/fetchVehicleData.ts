@@ -5,9 +5,9 @@ import {getProgress, setProgressStatus, setProgressTotal} from "@/services/dataC
 import {DataFetcher} from "@/utils/DataFetcher"
 import type {Http2SecureServer} from "http2"
 
-import {fastify} from "../server"
+import {fastify} from "../utils/server"
 
-const fetchVehicleData: RouteHandlerMethod<Http2SecureServer> = async (request, reply) => {
+const fetchVehicleData: RouteHandlerMethod<Http2SecureServer> = async function (request, reply) {
 	if (getProgress().status === `running`)
 		return reply.type(`application/json`).code(429).send({error: `Data collection is already running.`})
 
@@ -24,7 +24,7 @@ const fetchVehicleData: RouteHandlerMethod<Http2SecureServer> = async (request, 
 
 		// Begin data collection
 		setProgressTotal(allVehicleMakes.length)
-		collectData(allVehicleMakes) // Purposefully not awaited because this is a background task
+		collectData(allVehicleMakes, this.mongoose) // Purposefully not awaited because this is a background task
 		fastify.log.info(`Data collection started.`)
 
 		return reply

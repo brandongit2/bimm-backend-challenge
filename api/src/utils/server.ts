@@ -3,9 +3,11 @@
 import "dotenv/config"
 import Fastify from "fastify"
 import fs from "node:fs"
-import path, {dirname} from "node:path"
-import {fileURLToPath} from "node:url"
+import path from "node:path"
 
+import mongoosePlugin from "@/mongoose-plugin"
+
+import dirName from "./dirName"
 import {NODE_ENV} from "./env"
 
 const envToLogger = {
@@ -17,15 +19,18 @@ const envToLogger = {
 	production: true,
 }
 
-const __dirname = dirname(fileURLToPath(import.meta.url))
 export const fastify = Fastify({
 	logger: envToLogger[NODE_ENV as keyof typeof envToLogger],
 	http2: true,
 	https: {
 		allowHTTP1: true,
-		cert: fs.readFileSync(path.resolve(__dirname, `localhost-cert.pem`)),
-		key: fs.readFileSync(path.resolve(__dirname, `localhost-privkey.pem`)),
+		cert: fs.readFileSync(path.resolve(dirName(import.meta.url), `../localhost-cert.pem`)),
+		key: fs.readFileSync(path.resolve(dirName(import.meta.url), `../localhost-privkey.pem`)),
 	},
+})
+
+fastify.register(mongoosePlugin, {
+	url: `mongodb://service-db:27017/vehicleMakes`,
 })
 
 fastify.addHook(`onRequest`, (request, reply, done) => {

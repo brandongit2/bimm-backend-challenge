@@ -1,7 +1,8 @@
 import {NUM_DATA_FETCHERS} from "@/config"
-import {client, db} from "@/database"
-import {fastify} from "@/server"
+import {VehicleMake} from "@/models/VehicleMake"
+import type {TMongoose} from "@/mongoose-plugin/TMongoose"
 import {DataFetcher} from "@/utils/DataFetcher"
+import {fastify} from "@/utils/server"
 
 import {setProgressDone, setProgressStatus} from "./dataCollectionState"
 
@@ -10,11 +11,12 @@ export const collectData = async (
 		makeId: string
 		makeName: string
 	}[],
+	mongoose: TMongoose,
 ) => {
 	const dataFetchers = new Array(NUM_DATA_FETCHERS).fill(null).map(() => new DataFetcher())
 
 	let progress = 0
-	const vehicleTypes = await Promise.all(
+	const vehicleMakes = await Promise.all(
 		allVehicleMakes.map(async (make, i) => {
 			const dataFetcher = dataFetchers[i % dataFetchers.length]
 
@@ -41,11 +43,11 @@ export const collectData = async (
 
 	fastify.log.info(`Data collection finished. Writing to database...`)
 
-	const session = client.startSession()
+	const session = await mongoose.startSession()
 	try {
 		await session.withTransaction(async () => {
-			await db.collection(`vehicleMakes`).deleteMany({}, {session})
-			await db.collection(`vehicleMakes`).insertMany(vehicleTypes, {session})
+			await VehicleMake.deleteMany({}, {session})
+			await VehicleMake.insertMany(vehicleMakes, {session})
 		})
 	} finally {
 		session.endSession()

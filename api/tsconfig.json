@@ -17,6 +17,8 @@
 		"downlevelIteration": true,
 		"incremental": true,
 		"strictNullChecks": true,
+		"emitDecoratorMetadata": true,
+		"experimentalDecorators": true,
 		"baseUrl": "./",
 		"paths": {
 			"@/*": ["src/*"]
