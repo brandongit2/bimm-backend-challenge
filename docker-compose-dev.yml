@@ -1,7 +1,7 @@
 services:
   service-api-dev:
     build:
-      dockerfile: ./api/dev.Dockerfile
+      dockerfile: ./api/Dockerfile.dev
     container_name: service-api-dev
     ports:
       - 8443:8443

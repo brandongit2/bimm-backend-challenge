@@ -14,7 +14,7 @@ echo "MongoDB started."
 
 # Initialize the replica set, if the replica set is not already initiated
 # Code 94: https://github.com/mongodb/mongo/blob/master/src/mongo/base/error_codes.yml
-if [ "$(mongosh --quiet --eval 'rs.status()')" == "94" ]; then
+if [ "$(mongosh --quiet --eval 'try { rs.status().ok } catch (e) { e.code }')" == "94" ]; then
 	echo "Initiating replica set"
 	mongosh --eval "rs.initiate()"
 else

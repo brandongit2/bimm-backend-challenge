@@ -1,10 +1,10 @@
 services:
   service-api-prod:
     build:
-      dockerfile: ./api/prod.Dockerfile
+      dockerfile: ./api/Dockerfile.prod
     container_name: service-api-prod
     ports:
-      - 8444:8444
+      - 8444:8443
     volumes:
       - ./api:/app
       - ${PNPM_STORE_PATH}:/pnpm-store
@@ -14,10 +14,10 @@ services:
     image: mongo:7.0.2-jammy
     container_name: service-db-prod
     ports:
-      - 27018:27018
+      - 27018:27017
     volumes:
       - ./db/mongo-data-prod:/data/db
       - ./db/db-entry-point.sh:/usr/local/bin/db-entry-point.sh
     entrypoint: ["db-entry-point.sh"]
     command: mongod --replSet rs0
-    stop_grace_period: 20s
+    stop_grace_period: 2s

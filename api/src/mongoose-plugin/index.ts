@@ -10,7 +10,14 @@ export type FastifyMongooseOpts = {
 }
 
 async function fastifyMongoose(fastify: FastifyInstance, {url}: FastifyMongooseOpts) {
-	await mongoose.connect(url)
+	try {
+		await mongoose.connect(url, {
+			serverSelectionTimeoutMS: 3000,
+		})
+	} catch (err) {
+		fastify.log.error(err)
+		process.exit(1)
+	}
 
 	fastify.addHook(`onClose`, async () => {
 		await mongoose.disconnect()
