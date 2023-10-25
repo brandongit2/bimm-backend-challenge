@@ -12,7 +12,7 @@ By poking around at the NHTSA vPIC API, I realized that you could circumvent rat
 - All vehicle data is saved in a MongoDB database.
 - All services are written in TypeScript.
 - Entire application (Node.js server and MongoDB) is Dockerized, and can be started in a single command via Docker Compose.
-- Constains a REST API as well as a GraphQL API. The GraphQL API is for querying the saved data only.
+- Contains a REST API as well as a GraphQL API. The GraphQL API is for querying the saved data only.
 
 ## API routes
 
