@@ -1,3 +1,6 @@
+/* This class dynamically switches out user agent strings to circumvent API rate limits. The "Mozilla/..." string was a
+   random choice meant to look a little bit like a real user agent string, but really it doesn't matter. */
+
 import pLimit from "p-limit"
 import xml2js from "xml2js"
 

@@ -1,9 +1,9 @@
 import {createYoga} from "graphql-yoga"
 
 import type {GqlContext} from "./schema"
-import {fastify} from "@/utils/server"
 
 import {schema} from "./schema"
+import {fastify} from "@/utils/server"
 
 export const yoga = createYoga<GqlContext>({
 	schema,

@@ -3,11 +3,12 @@ import {readFileSync} from "node:fs"
 import path from "node:path"
 
 import type {Resolvers} from "./resolvers-types"
-import {VehicleMake} from "@/models/VehicleMake"
-import dirName from "@/utils/dirName"
 import type {FastifyReply, FastifyRequest, RouteGenericInterface} from "fastify"
 import type {Http2SecureServer} from "http2"
 import type mongoose from "mongoose"
+
+import {VehicleMake} from "@/models/VehicleMake"
+import dirName from "@/utils/dirName"
 
 export type GqlContext = {
 	req: FastifyRequest<RouteGenericInterface, Http2SecureServer>

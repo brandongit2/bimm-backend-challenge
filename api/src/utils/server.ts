@@ -5,10 +5,9 @@ import Fastify from "fastify"
 import fs from "node:fs"
 import path from "node:path"
 
-import mongoosePlugin from "@/mongoose-plugin"
-
 import dirName from "./dirName"
-import {NODE_ENV} from "./env"
+import {DB_CONNECTION_STRING, NODE_ENV} from "./env"
+import mongoosePlugin from "@/mongoose-plugin"
 
 const envToLogger = {
 	development: {
@@ -30,7 +29,7 @@ export const fastify = Fastify({
 })
 
 fastify.register(mongoosePlugin, {
-	url: `mongodb://service-db:27017/vehicleMakes`,
+	url: DB_CONNECTION_STRING,
 })
 
 fastify.addHook(`onRequest`, (request, reply, done) => {

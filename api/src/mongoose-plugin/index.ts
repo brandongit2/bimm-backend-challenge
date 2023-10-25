@@ -1,3 +1,5 @@
+/* A Fastify plugin for Mongoose. Doesn't do much but makes things a little more idiomatic to Fastify. */
+
 import fastifyPlugin from "fastify-plugin"
 import mongoose from "mongoose"
 

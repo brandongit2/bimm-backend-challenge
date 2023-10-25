@@ -1,23 +1,23 @@
 services:
-  service-api-dev:
+  service-api-prod:
     build:
-      dockerfile: ./api/dev.Dockerfile
-    container_name: service-api-dev
+      dockerfile: ./api/prod.Dockerfile
+    container_name: service-api-prod
     ports:
-      - 8443:8443
+      - 8444:8444
     volumes:
       - ./api:/app
       - ${PNPM_STORE_PATH}:/pnpm-store
       - /app/node_modules
-    stop_grace_period: 5s
-  service-db-dev:
+    stop_grace_period: 20s
+  service-db-prod:
     image: mongo:7.0.2-jammy
-    container_name: service-db-dev
+    container_name: service-db-prod
     ports:
-      - 27017:27017
+      - 27018:27018
     volumes:
-      - ./db/mongo-data-dev:/data/db
+      - ./db/mongo-data-prod:/data/db
       - ./db/db-entry-point.sh:/usr/local/bin/db-entry-point.sh
     entrypoint: ["db-entry-point.sh"]
     command: mongod --replSet rs0
-    stop_grace_period: 5s
+    stop_grace_period: 20s

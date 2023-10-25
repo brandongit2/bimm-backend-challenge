@@ -1,7 +1,8 @@
 import {type RouteHandlerMethod} from "fastify"
 
-import {getProgress} from "@/services/dataCollectionState"
 import type {Http2SecureServer} from "http2"
+
+import {getProgress} from "@/services/dataCollectionState"
 
 const progress: RouteHandlerMethod<Http2SecureServer> = async function () {
 	return getProgress()

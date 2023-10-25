@@ -2,12 +2,11 @@
 
 import "dotenv/config"
 
-import fetchVehicleData from "@/routes/fetchVehicleData"
-import {fastify} from "@/utils/server"
-
 import {yoga} from "./graphql/yoga"
 import progress from "./routes/progress"
 import savedVehicleData from "./routes/savedVehicleData"
+import fetchVehicleData from "@/routes/fetchVehicleData"
+import {fastify} from "@/utils/server"
 
 // Just a dummy route to confirm the server is up and running
 fastify.get(`/`, async (request, reply) => {

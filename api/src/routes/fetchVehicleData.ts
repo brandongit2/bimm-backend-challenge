@@ -1,11 +1,11 @@
 import {type RouteHandlerMethod} from "fastify"
 
+import type {Http2SecureServer} from "http2"
+
 import {collectData} from "@/services/collectData"
 import {getProgress, setProgressStatus, setProgressTotal} from "@/services/dataCollectionState"
 import {DataFetcher} from "@/utils/DataFetcher"
-import type {Http2SecureServer} from "http2"
-
-import {fastify} from "../utils/server"
+import {fastify} from "@/utils/server"
 
 const fetchVehicleData: RouteHandlerMethod<Http2SecureServer> = async function (request, reply) {
 	if (getProgress().status === `running`)
@@ -33,7 +33,6 @@ const fetchVehicleData: RouteHandlerMethod<Http2SecureServer> = async function (
 			.send({text: `Data collection started. Use the /progress endpoint to check on the progress.`})
 	} catch (error) {
 		setProgressStatus(`idle`)
-
 		fastify.log.error(`Error fetching data: ${error.message}`)
 		fastify.log.error(error)
 		return reply.code(500).send({error: `Internal Server Error`})

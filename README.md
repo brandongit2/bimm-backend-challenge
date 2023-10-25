@@ -1,19 +1,25 @@
 # BIMM coding challenge, back-end (Brandon Tsang)
 
-Gathers all vehicle data in 8m40s (in my testing).
+**Gathers all vehicle data in 8m40s (in my testing).**
 
-By poking at the DOT API, I realized that you could circumvent rate limits by changing your user agent string, even on the same computer and network. I took advantage of this by running multiple "data fetchers" (see `DataFetcher.ts`) at a time, each data fetcher creating a maximum of five API connections concurrently. By default, I've set the number of data fetchers to 40 (`NUM_DATA_FETCHERS`). Without multiple data fetchers the total data fetching time could exceed 16 minutes.
+By poking at the DOT API, I realized that you could circumvent rate limits by changing your user agent string, even on the same computer and network. I took advantage of this by running multiple "data fetchers" (see `DataFetcher.ts`) at a time, each data fetcher creating a maximum of five API connections concurrently. By default, I've set the number of data fetchers to 40 (`NUM_DATA_FETCHERS`). Without multiple data fetchers the total data fetching time could exceed 16 minutes, so this is a 2x speed increase.
 
 ## Features
 
-- Upon invoking an endpoint (`/fetch-vehicle-data`), a task is started up to fetch all vehicle data from the DOT API.
-- Many requests are made concurrently, massively speeding up this process.
-- Subsequent requests to start data fetching are blocked, so long as the task is already running.
+- Many requests are made concurrently, massively speeding up data fetching.
+- Only one data-fetching task is allowed to run at a time; hitting `/fetch-vehicle-data` when data fetching is already happening will show an error message.
 - All vehicle data is saved in a MongoDB database.
 - All services written in TypeScript.
-- Entire application is Dockerized, and can be started in a single command via Docker Compose.
-- Docker containers follow the single-purpose principle, and all dependencies are inside the containers, meaning nothing needs to be installed on the host machine other than Docker.
-- Both a development entirement with hot reload, and a production environment.
+- Entire application (Node.js server and MongoDB) is Dockerized, and can be started in a single command via Docker Compose.
+- A REST API as well as a GraphQL API. GraphQL API is for querying the saved data only.
+
+## API routes
+
+- `/`: A simple route for verifying the server is up.
+- `/fetch-vehicle-data`: The primary route; kicks off data fetching in the background.
+- `/progress`: Use to check the progress of data fetching, and whether it's active or idle.
+- `/saved-vehicle-data`: Pull the saved data from MongoDB; returns a JSON object.
+- `/graphql`: The GraphQL API endpoint; you can also navigate here in a browser to bring up the GraphiQL interface.
 
 ## Setup instructions
 
@@ -31,12 +37,12 @@ brew install mkcert nss
 mkcert -install
 
 # Create a certificate for the app
-mkcert -cert-file src/localhost-cert.pem -key-file src/localhost-privkey.pem localhost 127.0.0.1 ::1
+mkcert -cert-file api/src/localhost-cert.pem -key-file api/src/localhost-privkey.pem localhost 127.0.0.1 ::1
 ```
 
 ### Note on IPv6
 
-> If you don't want to do the below, you can always connect in web browsers by going to https://127.0.0.1:8443 instead of localhost, which will try (and fail) to use IPv6.
+> If you don't want to do the below, you can always connect in web browsers by going to https://127.0.0.1:<API_PORT> instead of localhost, which will try (and fail) to use IPv6.
 
 All modern web browsers will prefer IPv6 to IPv4 if it's available. Docker requires IPv6 support to be enabled manually which you can do via the following:
 
@@ -53,6 +59,31 @@ Then restart your Docker Engine. If you use Docker Desktop, this can be done fro
 
 _These instructions were adapted from the Linux-based instructions [here](https://docs.docker.com/config/daemon/ipv6/)._
 
+### Running the service
+
+First, make your own copy of `.env`:
+
+```bash
+cp api/src/.env.template api/src/.env
+```
+
+If you're running in prod, make the following changes to the new `.env`:
+- `NODE_ENV=production`. Right now all this does is disable prettier logging.
+- `API_PORT=8444`. 8444 is the default for for the prod API.
+- `DB_CONNECTION_STRING`: change the port to `27018` for the prod database.
+
+To start the application, assuming you have Docker installed:
+
+```bash
+./start.sh
+```
+
+> TO DO: Create a production version of the service.
+
+This will use Docker Compose to spin up two Docker services: a MongoDB database, and a Node.js server. The database listens on port 27018, and the Node.js server listens on port 8444.
+
+## Development
+
 ### pnpm (optional)
 
 This project uses [pnpm](https://pnpm.io/) as its package manager. Node.js bundles pnpm by default via its Corepack utility, so if you don't already have pnpm, you can run `corepack enable` to enable it.
@@ -60,26 +91,31 @@ This project uses [pnpm](https://pnpm.io/) as its package manager. Node.js bundl
 You don't technically need to install the pnpm dependencies locally, since the dependencies are installed automatically in the development container. However for development your IDE will benefit if you have the dependencies installed outside the container.
 
 ```bash
+cd api
 pnpm install
 ```
 
-### Running the service
+All package management has to be done in the `api/` folder as that's where the Node.js project lies. So no running pnpm commands in the project root.
 
-To start the application, assuming you have Docker installed:
+### GraphQL typegen
+
+To generate the TypeScript types for the GraphQL schema:
+
+```bash
+cd api
+pnpm generate
+```
+
+This will put the generated types into `api/src/graphql/resolvers-types.ts`.
+
+### Starting development environment
+
+The development environment starts the Node.js server in watch mode, meaning changes to the source will restart the server. pnpm package installs should also automatically mirror themselves in the Docker container, but I'm not 100% sure this is working right now.
+
+To start the development containers:
 
 ```bash
 ./develop.sh
 ```
 
-> TO DO: Create a production version of the service.
-
-This will use Docker Compose to spin up two Docker services: a MongoDB database, and a Node.js server with an HTTP REST API.
-
-The database listens on port 27017, and the API listens on port 8443.
-
-## API routes
-
-- `/`: A simple route for verifying the server is up.
-- `/fetch-vehicle-data`: The primary route; kicks off data fetching in the background.
-- `/progress`: Use to check the progress of data fetching, and whether it's active or idle.
-- `/saved-vehicle-data`: Pull the saved data from MongoDB; returns a JSON object.
+This will use Docker Compose to spin up two Docker services: a MongoDB database, and a Node.js server. The database listens on port 27017, and the Node.js server listens on port 8443.
